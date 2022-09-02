@@ -6,7 +6,7 @@ from multiprocessing.connection import wait
 from typing import ItemsView
 from bs4 import BeautifulSoup
 import pandas as pd
-from webbrowser import Chrome
+from webbrowser import Chrome, get
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
@@ -17,16 +17,16 @@ import requests
 import gspread
 import operator
 import json
+import csv
 
 chromeOptions = Options()
-
 
 chrome_path = "../SeleniumDrivers/chromedriver"
 driver = webdriver.Chrome(chrome_path)
 
 url = "https://state.bihar.gov.in/main/CitizenHome.html"
 driver.get(url)
-driver.minimize_window()
+# driver.minimize_window()
 wait = WebDriverWait(driver, 7)
 scrollDown = "window.scrollBy(0,1000);"
 driver.execute_script(scrollDown)
@@ -36,10 +36,10 @@ gad_click.click()
 
 # switch to new window
 driver.switch_to.window(driver.window_handles[1])
-driver.minimize_window()
+# driver.minimize_window()
 tnp_click = wait.until(ec.visibility_of_element_located(
     (By.LINK_TEXT, "Transfer & Postings")))
-tnp_click.click()
+tnp_click.click();
 
 current = driver.current_url
 
@@ -71,8 +71,11 @@ valuesDesc = [i['Description'] for i in list2]
 print(valuesDesc)
 
 
+# GoogleSheet Function 
+
 def output(valuesDate, valuesDesc):
     gc = gspread.service_account(filename='creds.json')
+    print(gc)
     sh = gc.open('scraped').sheet1
     cell_value1 = valuesDate
     cell_value2 = valuesDesc
@@ -85,6 +88,4 @@ def output(valuesDate, valuesDesc):
         cell_list2[i].value = val
     sh.update_cells(cell_list2)
     return
-
-
 output(valuesDate, valuesDesc)
